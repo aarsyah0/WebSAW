@@ -50,6 +50,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('products', AdminProductController::class)->except(['show']);
     Route::resource('criterias', AdminCriteriaController::class)->except(['show']);
     Route::get('transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
+    Route::get('transactions/{transaction}', [AdminTransactionController::class, 'show'])->name('transactions.show');
     Route::put('transactions/{transaction}/status', [AdminTransactionController::class, 'updateStatus'])->name('transactions.status');
     Route::get('transactions/export', [AdminTransactionController::class, 'export'])->name('transactions.export');
 });

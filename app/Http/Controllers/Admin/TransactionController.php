@@ -28,6 +28,13 @@ class TransactionController extends Controller
         return view('admin.transactions.index', compact('transactions'));
     }
 
+    public function show(Transaction $transaction)
+    {
+        $transaction->load('user', 'details.product');
+
+        return view('admin.transactions.show', compact('transaction'));
+    }
+
     public function updateStatus(Request $request, Transaction $transaction)
     {
         $request->validate(['status' => ['required', 'in:pending,paid,processing,shipped,completed,cancelled']]);

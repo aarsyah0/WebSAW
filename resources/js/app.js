@@ -116,4 +116,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // ----- Print buttons (invoice) -----
+  document.querySelectorAll('[data-action="print"]').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.print();
+    });
+  });
 });

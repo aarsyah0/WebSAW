@@ -51,7 +51,15 @@
                                     </select>
                                 </form>
                             </td>
-                            <td class="px-6 py-4 text-right text-gray-400">—</td>
+                            <td class="px-6 py-4 text-right">
+                                @if(in_array($t->status, ['paid','processing','shipped','completed']))
+                                    <a href="{{ route('admin.transactions.show', $t) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-600 hover:bg-primary-50">
+                                        <i class="fa-solid fa-file-invoice"></i> Invoice
+                                    </a>
+                                @else
+                                    <span class="text-xs text-gray-400">—</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr><td colspan="6" class="px-6 py-12 text-center text-gray-500">Tidak ada transaksi.</td></tr>
