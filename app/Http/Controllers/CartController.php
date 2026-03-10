@@ -24,15 +24,20 @@ class CartController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
-        if ($product->stock < ($request->quantity ?? 1)) {
-            return back()->with('error', 'Stok tidak mencukupi.');
-        }
+        $requestedQty = $request->quantity ?? 1;
 
         $cart = Cart::firstOrNew([
             'user_id' => auth()->id(),
             'product_id' => $product->id,
         ]);
-        $cart->quantity = $cart->quantity + ($request->quantity ?? 1);
+
+        $newQuantity = $cart->quantity + $requestedQty;
+
+        if ($product->stock < $newQuantity) {
+            return back()->with('error', 'Stok tidak mencukupi.');
+        }
+
+        $cart->quantity = $newQuantity;
         $cart->save();
 
         return back()->with('success', 'Produk ditambahkan ke keranjang.');
