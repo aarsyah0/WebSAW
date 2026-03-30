@@ -26,10 +26,26 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Gambar</label>
                     <input type="file" name="image" accept="image/*" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-primary-700 file:font-medium focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20">
                 </div>
-                <h3 class="font-semibold text-gray-900 pt-2">Nilai Kriteria (0-5)</h3>
+                <h3 class="font-semibold text-gray-900 pt-2">Nilai Kriteria (0–5)</h3>
+                <p class="text-sm text-gray-500 mb-2">Kriteria <strong>Harga</strong> diambil dari field Harga di atas. Kriteria lain mengikuti yang ada di admin.</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    @foreach(['kualitas'=>'Kualitas','keamanan'=>'Keamanan','edukasi'=>'Edukasi','popularitas'=>'Popularitas'] as $k => $l)
-                        <x-input :label="$l . ' *'" :name="$k" type="number" :value="old($k, 3)" min="0" max="5" step="0.5" required />
+                    @foreach($criterias as $c)
+                        @if($c->name === 'Harga')
+                            @continue
+                        @endif
+                        <div>
+                            <x-input
+                                :label="$c->name . ' *'"
+                                :name="'criteria_values['.$c->id.']'"
+                                type="number"
+                                :value="old('criteria_values.'.$c->id, 3)"
+                                min="0"
+                                max="5"
+                                step="0.5"
+                                required
+                            />
+                            <p class="text-xs text-gray-400 mt-0.5">{{ $c->type === 'cost' ? 'Cost' : 'Benefit' }}</p>
+                        </div>
                     @endforeach
                 </div>
             </div>

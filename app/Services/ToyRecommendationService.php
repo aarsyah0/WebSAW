@@ -9,15 +9,9 @@ use Illuminate\Support\Collection;
 class ToyRecommendationService
 {
     /**
-     * Kriteria key yang dipetakan dari input user (slider 1-5)
-     * Urutan: harga, kualitas, keamanan, edukasi, popularitas
-     */
-    protected array $criteriaKeys = ['harga', 'kualitas', 'keamanan', 'edukasi', 'popularitas'];
-
-    /**
      * Hitung rekomendasi SAW.
      *
-     * @param  array  $input  ['age_min', 'age_max', 'budget_min', 'budget_max', 'priorities' => [harga=>1-5, ...]]
+     * @param  array  $input  ['age_min', 'age_max', 'budget_min', 'budget_max', 'priorities' => [criteria_id=>1-5, ...]]
      * @return Collection<int, array{rank: int, product: Product, score: float, explanation: string}>
      */
     public function getRecommendations(array $input): Collection
@@ -115,17 +109,12 @@ class ToyRecommendationService
         $scores = $this->calculatePreferenceScores($normalized, $weights, $criterias);
         $ranked = $scores->sortByDesc('score')->take(5)->values();
 
-        $nameToKey = [
-            'Harga' => 'harga', 'Kualitas' => 'kualitas', 'Keamanan' => 'keamanan',
-            'Edukasi' => 'edukasi', 'Popularitas' => 'popularitas',
-        ];
         $criteriasWithWeight = [];
         foreach ($criterias as $c) {
-            $key = $nameToKey[$c->name] ?? strtolower($c->name);
             $criteriasWithWeight[] = [
                 'name' => $c->name,
                 'type' => $c->type,
-                'weight' => $weights[$key] ?? 0,
+                'weight' => $weights[$c->name] ?? 0,
             ];
         }
 
@@ -204,27 +193,25 @@ class ToyRecommendationService
 
     protected function buildWeightsFromPriorities(array $priorities, Collection $criterias): array
     {
-        $names = [
-            'harga' => 'Harga',
-            'kualitas' => 'Kualitas',
-            'keamanan' => 'Keamanan',
-            'edukasi' => 'Edukasi',
-            'popularitas' => 'Popularitas',
-        ];
-        $byName = $criterias->keyBy('name');
-        $weights = [];
-        $sum = 0;
-        foreach ($this->criteriaKeys as $key) {
-            $w = (float) ($priorities[$key] ?? 1);
-            if ($w < 1) {
-                $w = 1;
-            }
-            $weights[$key] = $w;
+        // priorities: [criteria_id => 1..5]
+        // return weights by criteria name: ['Harga' => 0.2, 'Kualitas' => 0.2, ...]
+        $raw = [];
+        $sum = 0.0;
+
+        foreach ($criterias as $c) {
+            $w = (float) ($priorities[(string) $c->id] ?? $priorities[$c->id] ?? 1);
+            if ($w < 1) $w = 1;
+            if ($w > 5) $w = 5;
+            $raw[$c->name] = $w;
             $sum += $w;
         }
-        foreach ($weights as $k => $v) {
-            $weights[$k] = $sum > 0 ? $v / $sum : 1 / count($this->criteriaKeys);
+
+        $count = max(1, $criterias->count());
+        $weights = [];
+        foreach ($raw as $name => $v) {
+            $weights[$name] = $sum > 0 ? $v / $sum : 1 / $count;
         }
+
         return $weights;
     }
 
@@ -288,15 +275,10 @@ class ToyRecommendationService
     protected function calculatePreferenceScores(array $normalized, array $weights, Collection $criterias): Collection
     {
         $result = collect();
-        $nameToKey = [
-            'Harga' => 'harga', 'Kualitas' => 'kualitas', 'Keamanan' => 'keamanan',
-            'Edukasi' => 'edukasi', 'Popularitas' => 'popularitas',
-        ];
         foreach ($normalized as $productId => $row) {
             $vi = 0;
             foreach ($criterias as $c) {
-                $key = $nameToKey[$c->name] ?? strtolower($c->name);
-                $w = $weights[$key] ?? (1 / count($this->criteriaKeys));
+                $w = (float) ($weights[$c->name] ?? (1 / max(1, $criterias->count())));
                 $r = (float) ($row[$c->name] ?? 0);
                 $vi += $w * $r;
             }

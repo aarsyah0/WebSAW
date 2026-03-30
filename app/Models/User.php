@@ -45,7 +45,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            // Password tidak memakai cast 'hashed': nilai di DB selalu hasil Hash::make() (bcrypt)
+            // agar seeder & kode lain konsisten dan Auth::attempt('password_plain') pasti cocok.
         ];
     }
 

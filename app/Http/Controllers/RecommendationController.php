@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RecommendationRequest;
+use App\Models\Criteria;
 use App\Services\ToyRecommendationService;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,8 @@ class RecommendationController extends Controller
 
     public function index()
     {
-        return view('user.recommendation');
+        $criterias = Criteria::orderBy('weight_order')->get();
+        return view('user.recommendation', compact('criterias'));
     }
 
     public function result(RecommendationRequest $request)

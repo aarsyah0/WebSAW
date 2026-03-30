@@ -28,7 +28,7 @@ class ToyRecommendationServiceTest extends TestCase
             'age_max' => 6,
             'budget_min' => 0,
             'budget_max' => 100000,
-            'priorities' => ['harga' => 3, 'kualitas' => 3, 'keamanan' => 3, 'edukasi' => 3, 'popularitas' => 3],
+            'priorities' => [],
         ]);
         $this->assertCount(0, $result);
     }
@@ -56,12 +56,16 @@ class ToyRecommendationServiceTest extends TestCase
             }
             $p->criterias()->sync($sync);
         }
+        $priorities = [];
+        foreach ($criterias as $c) {
+            $priorities[$c->id] = 5;
+        }
         $result = $this->service->getRecommendations([
             'age_min' => 3,
             'age_max' => 6,
             'budget_min' => 0,
             'budget_max' => 500000,
-            'priorities' => ['harga' => 5, 'kualitas' => 5, 'keamanan' => 5, 'edukasi' => 5, 'popularitas' => 5],
+            'priorities' => $priorities,
         ]);
         $this->assertLessThanOrEqual(5, $result->count());
         foreach ($result as $item) {

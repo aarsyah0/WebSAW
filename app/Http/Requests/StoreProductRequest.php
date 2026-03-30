@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Criteria;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductRequest extends FormRequest
@@ -13,7 +14,7 @@ class StoreProductRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -21,10 +22,16 @@ class StoreProductRequest extends FormRequest
             'age_range' => ['nullable', 'string', 'max:50'],
             'category' => ['nullable', 'string', 'max:100'],
             'image' => ['nullable', 'image', 'max:2048'],
-            'kualitas' => ['required', 'numeric', 'min:0', 'max:5'],
-            'keamanan' => ['required', 'numeric', 'min:0', 'max:5'],
-            'edukasi' => ['required', 'numeric', 'min:0', 'max:5'],
-            'popularitas' => ['required', 'numeric', 'min:0', 'max:5'],
+            'criteria_values' => ['nullable', 'array'],
         ];
+
+        foreach (Criteria::orderBy('weight_order')->get() as $c) {
+            if ($c->name === 'Harga') {
+                continue;
+            }
+            $rules['criteria_values.'.$c->id] = ['required', 'numeric', 'min:0', 'max:5'];
+        }
+
+        return $rules;
     }
 }

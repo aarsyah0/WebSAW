@@ -36,20 +36,19 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $criteriaValues = [
-            'Kualitas' => $data['kualitas'] ?? 0,
-            'Keamanan' => $data['keamanan'] ?? 0,
-            'Edukasi' => $data['edukasi'] ?? 0,
-            'Popularitas' => $data['popularitas'] ?? 0,
-        ];
-        unset($data['kualitas'], $data['keamanan'], $data['edukasi'], $data['popularitas']);
+        $criteriaValuesById = $data['criteria_values'] ?? [];
+        unset($data['criteria_values']);
 
         $product = Product::create($data);
 
         $criterias = Criteria::all();
         $sync = [];
         foreach ($criterias as $c) {
-            $val = $c->name === 'Harga' ? $product->price : ($criteriaValues[$c->name] ?? 0);
+            if ($c->name === 'Harga') {
+                $val = $product->price;
+            } else {
+                $val = $criteriaValuesById[$c->id] ?? 0;
+            }
             $sync[$c->id] = ['value' => $val];
         }
         $product->criterias()->sync($sync);
@@ -74,20 +73,19 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $criteriaValues = [
-            'Kualitas' => $data['kualitas'] ?? 0,
-            'Keamanan' => $data['keamanan'] ?? 0,
-            'Edukasi' => $data['edukasi'] ?? 0,
-            'Popularitas' => $data['popularitas'] ?? 0,
-        ];
-        unset($data['kualitas'], $data['keamanan'], $data['edukasi'], $data['popularitas']);
+        $criteriaValuesById = $data['criteria_values'] ?? [];
+        unset($data['criteria_values']);
 
         $product->update($data);
 
         $criterias = Criteria::all();
         $sync = [];
         foreach ($criterias as $c) {
-            $val = $c->name === 'Harga' ? $product->fresh()->price : ($criteriaValues[$c->name] ?? 0);
+            if ($c->name === 'Harga') {
+                $val = $product->fresh()->price;
+            } else {
+                $val = $criteriaValuesById[$c->id] ?? 0;
+            }
             $sync[$c->id] = ['value' => $val];
         }
         $product->criterias()->sync($sync);

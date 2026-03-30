@@ -29,19 +29,39 @@
             <h3 class="text-xl font-semibold text-gray-900 mb-1">Prioritas kriteria</h3>
             <p class="text-sm text-gray-500 mb-6">Geser 1–5 (1 = rendah, 5 = tinggi). Nilai akan dipakai sebagai bobot SAW.</p>
             <div class="space-y-6">
-                @foreach(['harga' => ['Harga', 'Cost – semakin murah semakin baik'], 'kualitas' => ['Kualitas', 'Benefit – semakin tinggi semakin baik'], 'keamanan' => ['Keamanan', 'Benefit'], 'edukasi' => ['Edukasi', 'Benefit'], 'popularitas' => ['Popularitas', 'Benefit']] as $key => $label)
+                @forelse(($criterias ?? collect()) as $c)
+                    @php
+                        $hint = $c->type === 'cost'
+                            ? 'Cost – semakin kecil semakin baik'
+                            : 'Benefit – semakin besar semakin baik';
+                        $val = old('priorities.' . $c->id, 3);
+                    @endphp
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label for="priorities_{{ $key }}" class="text-sm font-medium text-gray-700">{{ $label[0] }}</label>
+                            <label for="priorities_{{ $c->id }}" class="text-sm font-medium text-gray-700">{{ $c->name }}</label>
                             <span class="inline-flex items-center gap-1.5">
-                                <span class="text-sm font-bold text-primary-600 tabular-nums" id="val-{{ $key }}">{{ old("priorities.{$key}", 3) }}</span>
-                                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-gray-400 cursor-help text-xs font-bold" title="{{ $label[1] }}" aria-label="Info">?</span>
+                                <span class="text-sm font-bold text-primary-600 tabular-nums" id="val-{{ $c->id }}">{{ $val }}</span>
+                                <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-gray-400 cursor-help text-xs font-bold" title="{{ $hint }}" aria-label="Info">?</span>
                             </span>
                         </div>
-                        <input type="range" id="priorities_{{ $key }}" name="priorities[{{ $key }}]" value="{{ old("priorities.{$key}", 3) }}" min="1" max="5" step="1" class="w-full h-3 rounded-full appearance-none bg-gray-200 accent-primary-500 cursor-pointer" title="{{ $label[1] }}">
-                        <p class="text-xs text-gray-400 mt-0.5">{{ $label[1] }}</p>
+                        <input
+                            type="range"
+                            id="priorities_{{ $c->id }}"
+                            name="priorities[{{ $c->id }}]"
+                            value="{{ $val }}"
+                            min="1"
+                            max="5"
+                            step="1"
+                            class="w-full h-3 rounded-full appearance-none bg-gray-200 accent-primary-500 cursor-pointer"
+                            title="{{ $hint }}"
+                        >
+                        <p class="text-xs text-gray-400 mt-0.5">{{ $hint }}</p>
                     </div>
-                @endforeach
+                @empty
+                    <x-alert variant="warning">
+                        Kriteria belum tersedia. Tambahkan kriteria di panel admin terlebih dahulu.
+                    </x-alert>
+                @endforelse
             </div>
         </x-card>
 
