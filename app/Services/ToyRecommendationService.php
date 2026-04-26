@@ -108,6 +108,10 @@ class ToyRecommendationService
         $normalized = $this->normalizeMatrix($matrix, $criterias);
         $scores = $this->calculatePreferenceScores($normalized, $weights, $criterias);
         $ranked = $scores->sortByDesc('score')->take(5)->values();
+        $topProductIds = $ranked->pluck('product_id')->all();
+        $rankedScoresByProductId = $ranked
+            ->mapWithKeys(fn ($item) => [$item['product_id'] => round($item['score'], 4)])
+            ->all();
 
         $criteriasWithWeight = [];
         foreach ($criterias as $c) {
@@ -119,7 +123,11 @@ class ToyRecommendationService
         }
 
         $decisionMatrix = [];
-        foreach ($matrix as $productId => $row) {
+        foreach ($topProductIds as $productId) {
+            $row = $matrix[$productId] ?? null;
+            if (! $row) {
+                continue;
+            }
             $product = $products->firstWhere('id', $productId);
             $r = ['product_id' => $productId, 'product_name' => $product ? $product->name : '-'];
             foreach ($criterias as $c) {
@@ -129,7 +137,11 @@ class ToyRecommendationService
         }
 
         $normalizedMatrix = [];
-        foreach ($normalized as $productId => $row) {
+        foreach ($topProductIds as $productId) {
+            $row = $normalized[$productId] ?? null;
+            if (! $row) {
+                continue;
+            }
             $product = $products->firstWhere('id', $productId);
             $r = ['product_id' => $productId, 'product_name' => $product ? $product->name : '-'];
             foreach ($criterias as $c) {
@@ -139,7 +151,7 @@ class ToyRecommendationService
             $normalizedMatrix[] = $r;
         }
 
-        $preferenceScores = $scores->keyBy('product_id')->map(fn ($item) => round($item['score'], 4))->all();
+        $preferenceScores = $rankedScoresByProductId;
 
         $criteriaNames = $criterias->keyBy('id')->map->name;
         $recommendations = $ranked->map(function ($item, $index) use ($products, $criteriaNames, $priorities) {

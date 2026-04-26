@@ -37,7 +37,7 @@ class TransactionController extends Controller
 
     public function updateStatus(Request $request, Transaction $transaction)
     {
-        $request->validate(['status' => ['required', 'in:pending,paid,processing,shipped,completed,cancelled']]);
+        $request->validate(['status' => ['required', 'in:pending,paid,cancelled']]);
         $transaction->update(['status' => $request->status]);
         return back()->with('success', 'Status transaksi diperbarui.');
     }

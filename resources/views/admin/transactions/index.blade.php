@@ -11,8 +11,8 @@
             <input type="date" name="to" value="{{ request('to') }}" class="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20">
             <select name="status" class="rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20">
                 <option value="">Semua status</option>
-                @foreach(['pending','paid','processing','shipped','completed','cancelled'] as $s)
-                    <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ $s }}</option>
+                @foreach(['pending','paid','cancelled'] as $s)
+                    <option value="{{ $s }}" {{ request('status') == $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
             <x-button type="submit" variant="outline" size="sm">Filter</x-button>
@@ -45,14 +45,14 @@
                                     @csrf
                                     @method('PUT')
                                     <select name="status" onchange="this.form.submit()" class="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20">
-                                        @foreach(['pending','paid','processing','shipped','completed','cancelled'] as $s)
-                                            <option value="{{ $s }}" {{ $t->status === $s ? 'selected' : '' }}>{{ $s }}</option>
+                                        @foreach(['pending','paid','cancelled'] as $s)
+                                            <option value="{{ $s }}" {{ $t->status === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                                         @endforeach
                                     </select>
                                 </form>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                @if(in_array($t->status, ['paid','processing','shipped','completed']))
+                                @if($t->status === 'paid')
                                     <a href="{{ route('admin.transactions.show', $t) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-600 hover:bg-primary-50">
                                         <i class="fa-solid fa-file-invoice"></i> Invoice
                                     </a>

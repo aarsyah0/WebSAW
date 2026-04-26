@@ -23,8 +23,8 @@
             <div class="text-right space-y-2">
                 <div>
                     <p class="text-xs font-semibold text-gray-500 tracking-wider uppercase">Status</p>
-                    <x-badge :variant="$transaction->status === 'completed' || $transaction->status === 'paid' ? 'success' : ($transaction->status === 'cancelled' ? 'danger' : 'warning')">
-                        {{ $transaction->status }}
+                    <x-badge :variant="$transaction->status === 'paid' ? 'success' : ($transaction->status === 'cancelled' ? 'danger' : 'warning')">
+                        {{ ucfirst($transaction->status) }}
                     </x-badge>
                 </div>
                 <div>
