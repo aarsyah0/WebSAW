@@ -11,6 +11,8 @@ class TransactionController extends Controller
 {
     public function index(Request $request)
     {
+        Transaction::cancelOverduePendingPickup();
+
         $query = Transaction::with('user', 'details.product');
 
         if ($request->filled('status')) {
@@ -30,6 +32,8 @@ class TransactionController extends Controller
 
     public function show(Transaction $transaction)
     {
+        Transaction::cancelOverduePendingPickup();
+
         $transaction->load('user', 'details.product');
 
         return view('admin.transactions.show', compact('transaction'));
@@ -44,6 +48,8 @@ class TransactionController extends Controller
 
     public function export(Request $request): StreamedResponse
     {
+        Transaction::cancelOverduePendingPickup();
+
         $query = Transaction::with('user', 'details.product');
         if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->from);

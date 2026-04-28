@@ -14,8 +14,9 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address' => ['required', 'string'],
             'phone' => ['required', 'string', 'max:20'],
+            'pickup_date' => ['required', 'date'],
+            'pickup_time' => ['required', 'date_format:H:i'],
         ];
     }
 }

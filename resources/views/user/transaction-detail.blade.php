@@ -14,15 +14,23 @@
                 <h2 class="text-xl font-bold text-gray-900">{{ $transaction->code }}</h2>
                 <p class="text-sm text-gray-500 mt-0.5">{{ $transaction->created_at->format('d F Y, H:i') }}</p>
             </div>
-            <x-badge :variant="$transaction->status === 'completed' ? 'success' : ($transaction->status === 'cancelled' ? 'danger' : 'warning')">{{ $transaction->status }}</x-badge>
+            <x-badge :variant="$transaction->status === 'paid' ? 'success' : ($transaction->status === 'cancelled' ? 'danger' : 'warning')">{{ ucfirst($transaction->status) }}</x-badge>
         </div>
         <div class="px-6 py-5 space-y-4">
             <div>
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</p>
-                <p class="text-gray-800 mt-0.5">{{ $transaction->address }}</p>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat Toko (Pickup)</p>
+                <p class="text-gray-800 mt-0.5">{{ config('store.address') }}</p>
             </div>
             <div>
-                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon</p>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon Toko</p>
+                <p class="text-gray-800 mt-0.5">{{ config('store.phone') }}</p>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Jam Pengambilan</p>
+                <p class="text-gray-800 mt-0.5">{{ optional($transaction->pickup_at)->format('d F Y, H:i') ?? '-' }}</p>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Telepon Pembeli</p>
                 <p class="text-gray-800 mt-0.5">{{ $transaction->phone }}</p>
             </div>
         </div>

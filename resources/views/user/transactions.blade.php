@@ -16,7 +16,7 @@
                 </div>
                 <div class="flex items-center gap-4 shrink-0">
                     <span class="font-bold text-gray-900">Rp {{ number_format($t->total, 0, ',', '.') }}</span>
-                    <x-badge :variant="$t->status === 'completed' ? 'success' : ($t->status === 'cancelled' ? 'danger' : 'warning')">{{ $t->status }}</x-badge>
+                    <x-badge :variant="$t->status === 'paid' ? 'success' : ($t->status === 'cancelled' ? 'danger' : 'warning')">{{ ucfirst($t->status) }}</x-badge>
                 </div>
             </a>
         @empty

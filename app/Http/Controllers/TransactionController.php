@@ -8,6 +8,8 @@ class TransactionController extends Controller
 {
     public function index()
     {
+        Transaction::cancelOverduePendingPickup();
+
         $transactions = auth()->user()
             ->transactions()
             ->with('details.product')
@@ -19,6 +21,8 @@ class TransactionController extends Controller
 
     public function show(Transaction $transaction)
     {
+        Transaction::cancelOverduePendingPickup();
+
         if ($transaction->user_id !== auth()->id()) {
             abort(403);
         }

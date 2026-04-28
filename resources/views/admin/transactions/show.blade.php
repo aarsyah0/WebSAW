@@ -36,15 +36,16 @@
 
         <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-6 border-b border-gray-100">
             <div>
-                <p class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Dibayar oleh</p>
+                <p class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Data Pembeli</p>
                 <p class="text-sm font-medium text-gray-900">{{ $transaction->user->name ?? '-' }}</p>
-                <p class="text-sm text-gray-600 mt-1">{{ $transaction->address }}</p>
-                <p class="text-sm text-gray-600 mt-1">Telp: {{ $transaction->phone }}</p>
+                <p class="text-sm text-gray-600 mt-1">Telp pembeli: {{ $transaction->phone }}</p>
             </div>
             <div class="sm:text-right">
-                <p class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Informasi Sistem</p>
-                <p class="text-sm text-gray-700 font-medium">Sistem Rekomendasi Mainan Anak (SAW)</p>
-                <p class="text-sm text-gray-500 mt-1">Invoice ini dihasilkan otomatis oleh sistem setelah pembayaran berhasil.</p>
+                <p class="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-1">Informasi Pickup Toko</p>
+                <p class="text-sm text-gray-700 font-medium">{{ config('store.name') }}</p>
+                <p class="text-sm text-gray-500 mt-1">{{ config('store.address') }}</p>
+                <p class="text-sm text-gray-500 mt-1">Telp toko: {{ config('store.phone') }}</p>
+                <p class="text-sm text-gray-500 mt-1">Jam pengambilan: {{ optional($transaction->pickup_at)->format('d F Y, H:i') ?? '-' }}</p>
             </div>
         </div>
 

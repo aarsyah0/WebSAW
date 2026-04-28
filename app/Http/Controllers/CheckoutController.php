@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutRequest;
-use App\Models\Cart;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
@@ -17,7 +17,10 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Keranjang kosong.');
         }
         $total = $items->sum(fn ($item) => $item->quantity * $item->product->price);
-        return view('user.checkout', compact('items', 'total'));
+        $pickupStart = config('store.pickup_start', '19:00');
+        $pickupEnd = config('store.pickup_end', '21:00');
+
+        return view('user.checkout', compact('items', 'total', 'pickupStart', 'pickupEnd'));
     }
 
     public function process(CheckoutRequest $request)
@@ -38,11 +41,30 @@ class CheckoutController extends Controller
         $total = $items->sum(fn ($item) => $item->quantity * $item->product->price);
         $code = 'TRX-' . strtoupper(Str::random(8));
 
+        $pickupDateTime = Carbon::parse($request->pickup_date . ' ' . $request->pickup_time);
+        $pickupStartDateTime = Carbon::parse($request->pickup_date . ' ' . config('store.pickup_start', '19:00'));
+        $pickupEndDateTime = Carbon::parse($request->pickup_date . ' ' . config('store.pickup_end', '21:00'));
+
+        if ($pickupDateTime->lt(now())) {
+            return back()->withInput()->withErrors([
+                'pickup_time' => 'Jam pengambilan harus lebih besar dari waktu saat ini.',
+            ]);
+        }
+
+        if ($pickupDateTime->lt($pickupStartDateTime) || $pickupDateTime->gt($pickupEndDateTime)) {
+            $pickupStart = config('store.pickup_start', '07:00');
+            $pickupEnd = config('store.pickup_end', '21:00');
+            return back()->withInput()->withErrors([
+                'pickup_time' => "Jam pengambilan hanya tersedia antara jam {$pickupStart} sampai {$pickupEnd}.",
+            ]);
+        }
+
         $transaction = Transaction::create([
             'user_id' => $user->id,
             'code' => $code,
-            'address' => $request->address,
+            'address' => config('store.address'),
             'phone' => $request->phone,
+            'pickup_at' => $pickupDateTime,
             'status' => 'pending',
             'total' => $total,
         ]);

@@ -12,6 +12,8 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
+        Transaction::cancelOverduePendingPickup();
+
         $currentYear = (int) now()->year;
         $selectedYear = (int) $request->input('year', $currentYear);
         $monthInput = $request->input('month');
